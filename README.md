@@ -17,5 +17,5 @@ pip3 install biopython, joblib
 
 ## USAGE
 ```
-python3 qc_per_bp.py [-t num_threads] [-p output_prefix] [-s pdf_width] *fastq[.gz]
+python3 qc_per_bp.py [-t num_threads] [-p output_prefix] [-s pdf_width] input1.fastq[.gz]...
 ```
