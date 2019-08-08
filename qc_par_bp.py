@@ -36,7 +36,7 @@ def mean_qual(in_file):
 
 def main():
     parser=ArgumentParser(description="",usage="python3 qc_par_bp.py -t num_threds -p output_prefix fastq[.gz]...", epilog="")
-    parser.add_argument("files",nargs="*",type=str,metavar="str",help="fastq files")
+    parser.add_argument("files",nargs="+",type=str,metavar="str",help="fastq files")
     parser.add_argument("-t",type=int,metavar="int",default=2,help="num threads (default=2)") 
     parser.add_argument("-p",type=str,metavar="str",default="quality_check",help="output prefix (default=quality_check)")
     parser.add_argument("-s",type=float,metavar="float",default=10,help="pdf width (default=10)")
