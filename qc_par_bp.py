@@ -4,10 +4,15 @@
 #coding:UTF-8
 
 import gzip, os
+from itertools import zip_longest
 import subprocess
 from joblib import Parallel, delayed
 from Bio import SeqIO
 from argparse import ArgumentParser
+
+def avg(x):
+    x=list(filter(None, x))
+    return sum(x,0.0)/len(x)
 
 def mean_qual(in_file):
     if in_file[-3:]==".gz":
@@ -15,24 +20,13 @@ def mean_qual(in_file):
     else:
         fhr=open(in_file,"r")
     print("Check quality "+in_file)
-    count=0
+    count=[]
     qual=[]
     for rec in SeqIO.parse(fhr,"fastq"):
-        if len(qual) > 0: 
-            pos=0
-            for q in rec.letter_annotations["phred_quality"]:
-                qual[pos]+=int(q)
-                pos+=1
-        else:
-            qual=rec.letter_annotations["phred_quality"]
-        count+=1
+        qual.append(rec.letter_annotations["phred_quality"])
+    qual2 = list(map(avg, zip_longest(*qual)))
     fhr.close()
-
-    qual2=[]
-    for qu in qual:
-        qual2.append(float(qu)/count)
     return in_file, qual2
-
 
 def main():
     parser=ArgumentParser(description="",usage="python3 qc_par_bp.py -t num_threds -p output_prefix fastq[.gz]...", epilog="")
@@ -56,7 +50,7 @@ def main():
                 pos+=1
         else:
             for qu in  q[1]:
-                out+=q[0]+"\tN\t"+str(pos+1)+"\t"+str(q[1][pos])+"\n"
+                out+=q[0]+"\tunknown\t"+str(pos+1)+"\t"+str(q[1][pos])+"\n"
                 pos+=1
 
     fhw=open(args.p+".txt","w")
