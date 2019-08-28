@@ -14,17 +14,22 @@ def avg(x):
     x=list(filter(None, x))
     return sum(x,0.0)/len(x)
 
-def mean_qual(in_file):
+def mean_qual(in_file, _threshold):
     if in_file[-3:]==".gz":
         fhr=gzip.open(in_file,"rt")
     else:
         fhr=open(in_file,"r")
-    print("Check quality "+in_file)
     count=[]
     qual=[]
     for rec in SeqIO.parse(fhr,"fastq"):
         qual.append(rec.letter_annotations["phred_quality"])
-    qual2 = list(map(avg, zip_longest(*qual)))
+    if len(qual) > _threshold:
+        print("Check quality "+in_file)
+        qual2 = list(map(avg, zip_longest(*qual)))
+
+    else:
+        print("Skipped: "+in_file+" was less than "+ str(_threshold) + " reads.")
+        qual2=[]
     fhr.close()
     return in_file, qual2
 
@@ -34,9 +39,10 @@ def main():
     parser.add_argument("-t",type=int,metavar="int",default=2,help="num threads (default=2)") 
     parser.add_argument("-p",type=str,metavar="str",default="quality_check",help="output prefix (default=quality_check)")
     parser.add_argument("-s",type=float,metavar="float",default=10,help="pdf width (default=10)")
+    parser.add_argument("-m",type=int,metavar="int",default=0,help="minimum num reads using output graph. (default=0: all samples are calculated.)")
     args = parser.parse_args()
 
-    quality = Parallel(n_jobs=int(args.t))( [delayed(mean_qual)(f) for f in args.files])
+    quality = Parallel(n_jobs=int(args.t))( [delayed(mean_qual)(f, args.m) for f in args.files])
     out="filename\tFR\tposition\tmean_qual\n"
     for q in quality:
         pos=0

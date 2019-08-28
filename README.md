@@ -19,3 +19,13 @@ pip3 install biopython, joblib
 ```
 python3 qc_per_bp.py [-t num_threads] [-p output_prefix] [-s pdf_width] input1.fastq[.gz]...
 ```
+positional arguments:
+  str         fastq files
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -t int      num threads (default=2)
+  -p str      output prefix (default=quality_check)
+  -s float    pdf width (default=10)
+  -m int      minimum num reads using output graph. (default=0: all samples
+              are calculated.)
