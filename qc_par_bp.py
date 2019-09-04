@@ -34,12 +34,13 @@ def mean_qual(in_file, _threshold):
     return in_file, qual2
 
 def main():
-    parser=ArgumentParser(description="",usage="python3 qc_par_bp.py -t num_threds -p output_prefix fastq[.gz]...", epilog="")
+    parser=ArgumentParser(description="",usage="python3 qc_par_bp.py -t num_threds -p output_prefix [-m minimum number of reads] [-z] fastq[.gz]...", epilog="")
     parser.add_argument("files",nargs="+",type=str,metavar="str",help="fastq files")
     parser.add_argument("-t",type=int,metavar="int",default=2,help="num threads (default=2)") 
     parser.add_argument("-p",type=str,metavar="str",default="quality_check",help="output prefix (default=quality_check)")
     parser.add_argument("-s",type=float,metavar="float",default=10,help="pdf width (default=10)")
     parser.add_argument("-m",type=int,metavar="int",default=0,help="minimum num reads using output graph. (default=0: all samples are calculated.)")
+    parser.add_argument("-z", action="store_true",default = False, help="use ylim to 0.")
     args = parser.parse_args()
 
     quality = Parallel(n_jobs=int(args.t))( [delayed(mean_qual)(f, args.m) for f in args.files])
@@ -62,7 +63,10 @@ def main():
     fhw=open(args.p+".txt","w")
     fhw.write(out)
     fhw.close()
-    cmd=["Rscript", os.path.dirname(os.path.abspath(__file__))+"/qc_par_bp.r", args.p, str(args.s)]
+    if args.z == True:
+        cmd=["Rscript", os.path.dirname(os.path.abspath(__file__))+"/qc_par_bp.r", args.p, str(args.s), "True"]
+    else:
+        cmd=["Rscript", os.path.dirname(os.path.abspath(__file__))+"/qc_par_bp.r", args.p, str(args.s), "False"]
     subprocess.call(cmd)
 
     
